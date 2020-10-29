@@ -2,9 +2,8 @@ const crc = require("crc");
 const Link = require("../models/linkSchema");
 const nullCheck = require("../modules/nullCheck");
 
-const addLink = (req, res, next) => {
-  const owner = req.user ? req.user._id : "5f91d4ade6a8f725188ff0e5";
-  const { url, title, short } = req.body;
+const addLinkController = (req, res, next) => {
+  const { url, title, short, owner } = req.body;
   const counter = 0;
   const date = new Date();
   const rawHash = crc.crc32(date.toString()).toString(16);
@@ -12,22 +11,30 @@ const addLink = (req, res, next) => {
 
   Link.create({ url, title, short, counter, date, hash, owner })
     .then(nullCheck)
-    .then((data) => res.send(data))
+    .then((data) => res.send([data]))
     .catch((e) => next(e));
 };
 
-const removeLink = (req, res, next) => {
+const removeLinkController = (req, res, next) => {
   const { _id } = req.body;
-  Link.findByIdAndRemove(_id)
+  Link.deleteOne({ _id, owner: req.user._id })
     .then(nullCheck)
-    .then(() => res.send({ status: 200 }))
+    .then(() => res.send({ statusCode: 200 }))
     .catch((e) => next(e));
 };
 
-const updateLink = (req, res, next) => {
-  const { id, title } = req.body;
-  Link.findByIdAndUpdate(
-    id,
+const removeLinkManyController = (req, res, next) => {
+  const { array } = req.body;
+  Link.deleteMany({ _id: { $in: array }, owner: req.user._id })
+    .then(nullCheck)
+    .then(() => res.send({ statusCode: 200 }))
+    .catch((e) => next(e));
+};
+
+const updateLinkController = (req, res, next) => {
+  const { _id, title } = req.body;
+  Link.updateOne(
+    { _id, owner: req.user._id },
     { title },
     {
       new: true,
@@ -35,7 +42,31 @@ const updateLink = (req, res, next) => {
     }
   )
     .then(nullCheck)
+    .then((data) => res.send([data]))
+    .catch((e) => next(e));
+};
+
+const getLinksController = (req, res, next) => {
+  const { owner } = req.body;
+  Link.find({ owner })
     .then((data) => res.send(data))
     .catch((e) => next(e));
 };
-module.exports = { addLink, removeLink, updateLink };
+
+const getHashedLinkController = (req, res, next) => {
+  const { hash } = req.params;
+  Link.findOneAndUpdate({ hash }, { $inc: { counter: 1 } })
+    .then(nullCheck)
+    .then((link) => {
+      res.redirect(link.url);
+    })
+    .catch((e) => next(e));
+};
+module.exports = {
+  addLinkController,
+  removeLinkController,
+  updateLinkController,
+  getLinksController,
+  removeLinkManyController,
+  getHashedLinkController,
+};

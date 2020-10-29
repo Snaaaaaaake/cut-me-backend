@@ -10,9 +10,9 @@ const userSchema = mongoose.Schema({
     minlength: 2,
     maxlength: 30,
     validate: {
-      message: "Название должно содержать только цифры или латинские буквы",
+      message: "Имя может содержать только буквы и цыфры",
       validator(hash) {
-        return /^[a-z0-9_-]*$/i.test(hash);
+        return /^[a-zа-яё0-9_-\s]*$/i.test(hash);
       },
     },
   },
@@ -47,9 +47,7 @@ userSchema.statics.findUserByCredentials = function (email, password) {
       }
       const passMatch = bscript.compareSync(password, user.password);
       if (!passMatch) {
-        throw new ErrorUnauthorized(
-          "Проверьте правильность ввода почты и пароля"
-        );
+        throw new ErrorUnauthorized("Проверьте правильность ввода почты и пароля");
       }
       return user;
     });

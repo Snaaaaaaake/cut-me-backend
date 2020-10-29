@@ -5,11 +5,11 @@ const notFound = (req, res, next) => {
 };
 
 const errorHandler = (err, req, res, next) => {
-  const incomingError = err;
-  const { message, statusCode } = incomingError;
+  let incomingError = err;
   if (/Cast to [a-z]+ failed/i.test(incomingError.message)) {
     incomingError = new ErrorNotFound();
   }
+  const { message, statusCode = 500 } = incomingError;
   res.status(statusCode).send({ message, statusCode });
 };
 
