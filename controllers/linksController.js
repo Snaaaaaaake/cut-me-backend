@@ -68,7 +68,7 @@ const getHashedLinkController = (req, res, next) => {
     .then((link) => {
       res.redirect(link.url);
     })
-    .catch((e) => next(e));
+    .catch(() => next());
 };
 module.exports = {
   addLinkController,
