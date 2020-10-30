@@ -2,6 +2,7 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const jwtSecret = require("../configs/jwtSecret");
 const User = require("../models/userSchema");
+const { ErrorBadRequest } = require("../modules/errors");
 
 const returnUserWithCookie = (res) => (user) => {
   const token = jwt.sign({ _id: user._id }, jwtSecret, { expiresIn: "7d" });
@@ -29,7 +30,17 @@ const signUpController = (req, res, next) => {
   const cryptedUser = { name, email, password: cryptedPassword };
   User.create(cryptedUser)
     .then(returnUserWithCookie(res))
-    .catch((e) => next(e));
+    .catch((e) => {
+      let err;
+      if (/validation failed/.test(e.message)) {
+        err = new ErrorBadRequest(e.message);
+      } else if (/duplicate key/.test(e.message)) {
+        err = new ErrorBadRequest("Пользователь с таким email уже существует");
+      } else {
+        err = e;
+      }
+      return next(err);
+    });
 };
 
 const signInController = (req, res, next) => {

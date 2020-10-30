@@ -1,6 +1,7 @@
 const crc = require("crc");
 const Link = require("../models/linkSchema");
 const nullCheck = require("../modules/nullCheck");
+const { ErrorBadRequest } = require("../modules/errors");
 
 const addLinkController = (req, res, next) => {
   const { url, title, short, owner } = req.body;
@@ -8,11 +9,18 @@ const addLinkController = (req, res, next) => {
   const date = new Date();
   const rawHash = crc.crc32(date.toString()).toString(16);
   const hash = short ? `${rawHash}_${short.toLowerCase()}` : rawHash;
-
   Link.create({ url, title, short, counter, date, hash, owner })
     .then(nullCheck)
     .then((data) => res.send([data]))
-    .catch((e) => next(e));
+    .catch((e) => {
+      let err;
+      if (/validation failed/.test(e.message)) {
+        err = new ErrorBadRequest(e.message.replace("link validation failed:", "Ошибка валидации поля"));
+      } else {
+        err = e;
+      }
+      return next(err);
+    });
 };
 
 const removeLinkController = (req, res, next) => {
