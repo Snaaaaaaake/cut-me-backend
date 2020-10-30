@@ -1,5 +1,5 @@
 const router = require("express").Router();
-const auth = require("../middlewares/auth");
+const authMiddleware = require("../middlewares/authMiddleware");
 const {
   addLinkController,
   removeLinkController,
@@ -9,9 +9,9 @@ const {
 } = require("../controllers/linksController");
 
 router.post("/add", addLinkController);
-router.delete("/remove", auth, removeLinkController);
-router.delete("/removeMany", auth, removeLinkManyController);
-router.post("/edit", auth, updateLinkController);
-router.post("/get", auth, getLinksController);
+router.delete("/remove", authMiddleware, removeLinkController);
+router.delete("/removeMany", authMiddleware, removeLinkManyController);
+router.post("/edit", authMiddleware, updateLinkController);
+router.post("/get", authMiddleware, getLinksController);
 
 module.exports = router;
