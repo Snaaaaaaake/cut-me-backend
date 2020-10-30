@@ -4,7 +4,8 @@ const nullCheck = require("../modules/nullCheck");
 const { ErrorBadRequest } = require("../modules/errors");
 
 const addLinkController = (req, res, next) => {
-  const { url, title, short, owner } = req.body;
+  const { url, title, short, owner: rawOwner } = req.body;
+  const owner = rawOwner ? rawOwner : process.env.GUIEST_USER_ID;
   const counter = 0;
   const date = new Date();
   const rawHash = crc.crc32(date.toString()).toString(16);
