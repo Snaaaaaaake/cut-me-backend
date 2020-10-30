@@ -3,7 +3,6 @@ const express = require("express");
 const favicon = require("express-favicon");
 const helmet = require("helmet");
 const path = require("path");
-const cors = require("cors");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 const cookieParser = require("cookie-parser");
@@ -17,23 +16,15 @@ const { errorHandlerMiddleware } = require("./middlewares/errorHandlerMiddleware
 const { PORT = 8080 } = process.env;
 mongoose
   .connect(databaseUrl, databaseConfig)
-  .then(() => console.log("Подключено к БД!"))
+  .then(() => console.log("Подключено к БД"))
   .catch((err) => {
     console.log("Ошибка подключения к БД: " + err.reason);
   });
 const app = express();
 
-app.use(favicon(__dirname + "/public/favicon.ico"));
-app.use(
-  cors({
-    origin: ["http://localhost:3000"],
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    credentials: true,
-    preflightContinue: false,
-  })
-);
 app.use(helmet());
 app.use(limiter);
+app.use(favicon(__dirname + "/public/favicon.ico"));
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(requestLoggerMiddleware);
