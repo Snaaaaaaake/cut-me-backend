@@ -15,7 +15,12 @@ const { databaseUrl, databaseConfig } = require("./configs/database");
 const { errorHandlerMiddleware } = require("./middlewares/errorHandlerMiddleware");
 
 const { PORT = 8080 } = process.env;
-mongoose.connect(databaseUrl, databaseConfig).catch((err) => console.log(err.reason));
+mongoose
+  .connect(databaseUrl, databaseConfig)
+  .then(() => console.log("Подключено к БД!"))
+  .catch((err) => {
+    console.log("Ошибка подключения к БД: " + err.reason);
+  });
 const app = express();
 
 app.use(favicon(__dirname + "/public/favicon.ico"));
