@@ -9,4 +9,4 @@
 
 - Node.js/Express
 - MongoDB/Mongoose: база данных
-- helmet, winston, express-rate-limit, validator, jsonwebtoken: безопастность
+- helmet, winston, express-rate-limit, validator, jsonwebtoken: безопасность
